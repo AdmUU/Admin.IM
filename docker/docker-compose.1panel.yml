@@ -1,0 +1,44 @@
+services:
+  admin-im:
+    image: admuu/admin.im:1
+    container_name: admin-im
+    working_dir: /opt/www
+    volumes:
+      - ./data:/data
+      - ./data/upload:/opt/www/public/upload
+      - ./data/runtime:/opt/www/runtime
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    env_file:
+      - 1panel.env
+    networks:
+      - 1panel-network
+    restart: always
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1:9501/adm/health"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+  adm-frontend:
+    image: admuu/adm-frontend:1
+    container_name: adm-frontend
+    volumes:
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    ports:
+      - "8090:8090"
+    networks:
+      - 1panel-network
+    depends_on:
+      - admin-im
+    restart: always
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1:8090/"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+networks:
+  1panel-network:
+    external: true

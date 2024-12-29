@@ -1,0 +1,23 @@
+{
+    "name": "adm/ping",
+    "version": "1.0.0",
+    "type": "mixed",
+    "description": "Ping plugin for adm server.",
+    "author": [
+        {
+            "name": "admin.im"
+        }
+    ],
+    "composer": {
+        "require": [],
+        "psr-4": {
+            "Plugin\\Ping\\": "src"
+        },
+        "installScript": "Plugin\\Ping\\InstallScript",
+        "uninstallScript": "Plugin\\Ping\\UninstallScript",
+        "config": "Plugin\\Ping\\ConfigProvider"
+    },
+    "package": {
+        "dependencies": []
+    }
+}

@@ -1,0 +1,112 @@
+x-common-vars: &common-vars
+  APP_VERSION: ${APP_VERSION:-latest}
+  TZ: ${TIMEZONE:-Asia/Shanghai}
+  
+services:
+  admin-im:
+    image: ${DOCKER_REGISTRY:-docker.io}/admuu/admin.im:1
+    container_name: admin-im
+    working_dir: /opt/www
+    volumes:
+      - ./data:/data
+      - ./data/upload:/opt/www/public/upload
+      - ./data/runtime:/opt/www/runtime
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    env_file:
+      - .env
+    networks:
+      - server
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+        required: false
+      redis:
+        condition: service_healthy
+        required: false
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1:9501/adm/health"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+  adm-frontend:
+    image: ${DOCKER_REGISTRY:-docker.io}/admuu/adm-frontend:1
+    container_name: adm-frontend
+    volumes:
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    ports:
+      - "${ADM_PORT_HTTP:-8090}:8090"
+    networks:
+      - server
+    depends_on:
+      - admin-im
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1:8090/"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+  mysql:
+    image: bitnami/mysql:8.4
+    container_name: adm-mysql
+    volumes:
+      - mysql:/bitnami/mysql/data
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    environment:
+      <<: *common-vars
+      MYSQL_ROOT_PASSWORD: ${ADM_DB_ROOT_PASSWORD:-admmysqlrootpwd}
+      MYSQL_USER: ${ADM_DB_USERNAME}
+      MYSQL_PASSWORD: ${ADM_DB_PASSWORD}
+      MYSQL_DATABASE: ${ADM_DB_DATABASE}
+    networks:
+      - server
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${ADM_DB_ROOT_PASSWORD:-admmysqlrootpwd}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped
+    profiles:
+      - mysql
+  redis:
+    image: bitnami/redis
+    container_name: adm-redis
+    volumes:
+      - redis:/bitnami/redis/data
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    environment:
+      <<: *common-vars
+      REDIS_PASSWORD: ${ADM_REDIS_PASSWORD}
+      REDIS_AOF_ENABLED: yes
+      REDIS_RDB_POLICY_DISABLED: no
+      REDIS_RDB_POLICY: 900#1 600#5 300#10 120#50 60#1000 30#10000
+    command: /opt/bitnami/scripts/redis/run.sh --maxmemory ${ADM_REDIS_MAX_MEMORY:-512mb} --maxmemory-policy allkeys-lru
+    sysctls:
+      net.core.somaxconn: 1024
+    networks:
+      - server
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${ADM_REDIS_PASSWORD}", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+    profiles:
+      - redis      
+name: admuu
+networks:
+  server:
+    driver: bridge
+volumes:
+  mysql:
+    driver: local
+  redis:
+    driver: local

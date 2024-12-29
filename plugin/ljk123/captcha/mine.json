@@ -1,0 +1,26 @@
+{
+    "name": "ljk123/captcha",
+    "version": "1.0.1",
+    "type": "mixed",
+    "description": "简易验证码插件,前后端验证,多种验证码类型持续更新",
+    "author": [
+        {
+            "name": "初学者3"
+        }
+    ],
+    "composer": {
+        "require": {
+        },
+        "psr-4": {
+            "Plugin\\Captcha\\": "src"
+        },
+        "installScript": "Plugin\\Captcha\\InstallScript",
+        "uninstallScript": "Plugin\\Captcha\\UninstallScript",
+        "config": "Plugin\\Captcha\\ConfigProvider"
+    },
+    "installScript": "Plugin\\Captcha\\InstallScript",
+    "uninstallScript": "Plugin\\Captcha\\UninstallScript",
+    "package": {
+        "dependencies": {}
+    }
+}

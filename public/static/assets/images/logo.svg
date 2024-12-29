@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="33" height="33">
+  <!-- A-inspired line -->
+  <path d="M20 90 L60 20 L100 90" fill="none" stroke="#12D2AC" stroke-width="18" stroke-linecap="round"/>
+  
+  <!-- M-inspired line -->
+  <path d="M20 90 L40 40 L60 70 L80 40 L100 90" fill="none" stroke="#0057FE" stroke-width="12" stroke-linecap="round"/>
+</svg>

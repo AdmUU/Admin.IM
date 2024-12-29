@@ -1,0 +1,9 @@
+{
+    "name": "Adm",
+    "label": "Adm Server",
+    "description": "ADM webmaster management system",
+    "installed": true,
+    "enabled": true,
+    "version": "1.0.0",
+    "order": 100
+}

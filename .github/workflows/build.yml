@@ -1,0 +1,15 @@
+name: Build Docker
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Build
+        run: docker build -t hyperf .
+      # - name: docker-compose
+      #   run:
+      #     docker-compose up -d
