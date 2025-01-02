@@ -1,4 +1,4 @@
-name: MineAdmin Unit and Ci Test
+name: Unit and Ci Test
 on:
   push:
   pull_request:

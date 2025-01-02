@@ -1,7 +1,15 @@
 name: Build Docker
 
-on: [push, pull_request]
-
+on:
+  push:
+    branches: [ main ]
+    paths-ignore:
+      - "README.md"
+      - "LICENSE"
+      - ".github"
+  pull_request:
+    branches: [ main ]
+    
 jobs:
   build:
     runs-on: ubuntu-22.04
@@ -9,7 +17,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
       - name: Build
-        run: docker build -t hyperf .
+        run: docker build -t admuu/admin.im .
       # - name: docker-compose
       #   run:
       #     docker-compose up -d

@@ -4,8 +4,10 @@ FROM hyperf/hyperf:8.3-alpine-v3.20-swoole
 LABEL maintainer="AdminIM-DEV <dev@admin.im>" version="1.0" license="MIT" app.name="Admin.IM Backend"
 
 ARG TZ
+ARG APP_VERSION
 
 ENV TIMEZONE=${TZ} \
+    APP_VERSION=${APP_VERSION} \
     APP_ENV=prod \
     SCAN_CACHEABLE=(true) \
     LD_PRELOAD=/usr/lib/preloadable_libiconv.so \

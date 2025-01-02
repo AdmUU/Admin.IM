@@ -6,7 +6,7 @@ ARG APP_VERSION
 ARG VITE_ADMIN_TITLE
 
 ENV VITE_APP_TITLE=${VITE_ADMIN_TITLE:-"AdminIM"} \
-    VITE_APP_VERSION=${APP_VERSION:-"1.0LTS"}
+    VITE_APP_VERSION=${APP_VERSION:-"1.0"}
 
 RUN --mount=type=cache,target=/root/.npm,id=npm-cache \
     npm install -g pnpm
@@ -35,7 +35,7 @@ ARG APP_VERSION
 ARG VITE_USER_TITLE
 
 ENV VITE_APP_TITLE=${VITE_USER_TITLE:-"AdminIM"} \
-    VITE_APP_VERSION=${APP_VERSION:-"1.5.0"}
+    VITE_APP_VERSION=${APP_VERSION:-"1.0"}
 
 RUN --mount=type=cache,target=/root/.npm,id=npm-cache \
     npm install -g pnpm

@@ -1,27 +1,48 @@
 on:
   push:
-    # Sequence of patterns matched against refs/tags
     tags:
-      - 'v*' # Push events to matching v*, i.e. v1.0, v20.15.10
+      - 'v*'
 
 name: Release
 
-permissions: write-all
+permissions:
+  contents: write
 
 jobs:
   release:
     name: Release
     runs-on: ubuntu-22.04
+    permissions:
+      contents: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+      - name: Generate Release Notes
+        id: release_notes
+        run: |
+          PREVIOUS_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
+          if [ -z "$PREVIOUS_TAG" ]; then
+            COMMITS=$(git log --pretty=format:"* %s (%h)" --reverse)
+          else
+            COMMITS=$(git log ${PREVIOUS_TAG}..HEAD --pretty=format:"* %s (%h)" --reverse)
+          fi
+          
+          {
+            echo "## What's Changed"
+            echo ""
+            echo "$COMMITS"
+          } >> "$GITHUB_STEP_SUMMARY"
+          
+          echo "CHANGELOG<<EOF" >> "$GITHUB_ENV"
+          echo "## What's Changed" >> "$GITHUB_ENV"
+          echo "" >> "$GITHUB_ENV"
+          echo "$COMMITS" >> "$GITHUB_ENV"
+          echo "EOF" >> "$GITHUB_ENV"
       - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: softprops/action-gh-release@v1
         with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
+          body: ${{ env.CHANGELOG }}
           draft: false
           prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
