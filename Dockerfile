@@ -1,7 +1,7 @@
 #syntax=docker/dockerfile:1-labs
 
 FROM hyperf/hyperf:8.3-alpine-v3.20-swoole
-LABEL maintainer="AdminIM-DEV <dev@admin.im>" version="1.0" license="MIT" app.name="Admin.IM Backend"
+LABEL maintainer="Admin.IM <dev@admin.im>" version="1.0" license="Apache-2.0" app.name="Admin.IM Backend"
 
 ARG TZ
 ARG APP_VERSION

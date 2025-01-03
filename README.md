@@ -34,7 +34,7 @@ Admin.IM 是开源的网络检测和服务器管理系统。后台及接口基�
 - 前端 UI Adm-Frontend-User：[Github](https://github.com/AdmUU/adm-frontend-user) | [Gitee](https://gitee.com/admuu/adm-frontend-user)
 - 后台 UI Adm-Frontend-Admin：[Github](https://github.com/AdmUU/adm-frontend-admin) | [Gitee](https://gitee.com/admuu/adm-frontend-admin)
 
-## 🚀 项目安装
+## 🚀 源码安装
 
 ### 环境需求
 
@@ -86,8 +86,9 @@ php bin/hyperf.php start
 线上环境推荐使用 docker compose 方式一键部署。
 
 ### 前置条件
-- 安装 Docker 和 Docker Compose 插件
-- 安装MySQL、Redis（可选）
+- 系统内存 1G 以上。如果与数据库安装在同一个服务器上，则至少 2G 内存。
+- 安装 Docker 和 Docker Compose 插件。
+- 安装MySQL、Redis。（也可以使用内置的MySQL和Redis）
 
 ### 快速部署
 
@@ -96,26 +97,33 @@ php bin/hyperf.php start
 mkdir admin-im && cd admin-im
 ```
 
-2. 创建环境配置文件 .env：
+2. 创建并编辑环境配置文件 .env：
+```bash
+vim .env
+```
 
 ```properties
 #.env
-ADM_DB_HOST=mysql
-ADM_DB_PORT=3306
-ADM_DB_USERNAME=user
-ADM_DB_PASSWORD=password
-ADM_DB_DATABASE=db_name
-ADM_REDIS_HOST=redis
-ADM_REDIS_PORT=6379
-ADM_REDIS_PASSWORD=redis_password
-ADM_PORT_HTTP=8090
+ADM_DB_HOST=mysql                    #MySQL地址
+ADM_DB_PORT=3306                     #MySQL端口
+ADM_DB_USERNAME=user                 #MySQL用户名
+ADM_DB_PASSWORD=password             #MySQL密码
+ADM_DB_DATABASE=db_name              #MySQL数据库名
+ADM_REDIS_HOST=redis                 #Redis地址
+ADM_REDIS_PORT=6379                  #Redis端口
+ADM_REDIS_PASSWORD=redis_password    #Redis密码
+ADM_PORT_HTTP=8090                   #访问的端口号
 
-# ADM_DB_ROOT_PASSWORD=admmysqlrootpwd
+# ADM_DB_ROOT_PASSWORD=admmysqlrootpwd  #内置MySQL的Root密码
 ```
 
-如果没有事先安装MySQL和Redis，将上面的 ADM_DB_ROOT_PASSWORD 配置项取消注释，设置好MySQL Root密码，部署时由docker自动安装。相关数据库的数据已经持久化，可直接使用。
+>如果没有事先安装MySQL和Redis，将上面的 ADM_DB_ROOT_PASSWORD 配置项取消注释，设置好MySQL Root密码，部署时由docker自动安装。内置数据库的数据已经持久化，可直接使用。
 
-3. 创建 docker-compose.yml：
+3. 创建并编辑容器编排文件 docker-compose.yml：
+```bash
+vim docker-compose.yml
+```
+
 ```yaml
 #docker-compose.yml
 x-common-vars: &common-vars
@@ -233,16 +241,27 @@ volumes:
 ```
 
 4. 启动服务：
+
+>方式一
 ```bash
 # 使用外部数据库，直接启动
 docker compose up -d
+```
 
-# 使用内置数据库，同步安装mysql和redis
+>方式二
+```bash
+# 使用内置数据库，自动安装Mysql和Redis
 docker compose --profile mysql --profile redis up -d
 ```
 
-5. 查看默认密码：
+5. 查看安装进度：
+
+系统安装需要等待1至2分钟的时间。安装成功后，默认用户名是 admin，默认密码需从安装日志中查看。
 ```bash
+#监视安装进度
+docker logs -f -n 20 admin-im
+
+#查看默认密码
 docker logs admin-im | grep "Default password"
 ```
 
