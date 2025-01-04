@@ -6,7 +6,7 @@ services:
     volumes:
       - ./data:/data
       - ./data/upload:/opt/www/public/upload
-      - ./data/runtime:/opt/www/runtime
+      - ./data/logs:/opt/www/runtime/logs/debug
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
     env_file:

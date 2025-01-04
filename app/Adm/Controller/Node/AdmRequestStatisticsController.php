@@ -12,6 +12,8 @@ declare(strict_types=1);
 
 namespace App\Adm\Controller\Node;
 
+use App\Adm\Interfaces\AdmIpLocationInterface;
+use App\Adm\Service\AdmAuthService;
 use App\Adm\Service\AdmRequestStatisticsService;
 use Hyperf\Di\Annotation\Inject;
 use Hyperf\HttpServer\Annotation\Controller;
@@ -32,6 +34,12 @@ class AdmRequestStatisticsController extends MineController
 {
     #[Inject]
     protected AdmRequestStatisticsService $service;
+    
+    #[Inject]
+    protected AdmAuthService $authService;
+    
+    #[Inject]
+    private AdmIpLocationInterface $ipLocation;
 
     /**
      * query request statistics.
@@ -51,7 +59,9 @@ class AdmRequestStatisticsController extends MineController
         phpinfo();
         $headers = $this->request->getHeaders();
         $serverParams = $this->request->getServerParams();
+        $params = $this->authService->getRegistIP($serverParams);
+        $params['ipLocation'] = $this->ipLocation->search('114.66.63.162');
         \print_r($headers);
-        \print_r($serverParams);
+        \print_r($params);
     }
 }

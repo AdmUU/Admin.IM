@@ -135,4 +135,6 @@ if [ ! -f "/data/INSTALL.LOCK" ] && [ "$user_count" -eq "0" ]; then
     touch "/data/INSTALL.LOCK"
 fi
 
+#composer dump-autoload -o > /dev/null 2>&1
+
 exec "$@"

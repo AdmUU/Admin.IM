@@ -126,7 +126,7 @@ class AdmSystemDictDataService extends AbstractService
         }
         $nodeList['items'] = array_map(function ($node) {
             if (! empty($node['ipv4'])) {
-                $node['ip'] = preg_replace('/\.\d+\.\d+\./', '.*.*.', $node['ipv4']);
+                $node['ip'] = preg_replace('/\.\d+\.\d+\.\d+/', '.*.*.*', $node['ipv4']);
             } elseif (! empty($node['ipv6'])) {
                 $node['ip'] = preg_replace('/:.*/', '::*', $node['ipv6']);
             }

@@ -289,6 +289,9 @@ class AdmNodeService extends AbstractService
      */
     public function updateOnlineStatus(int $id, int $status): void
     {
+        if (!$this->get($id)) {
+            return;
+        }
         $data = $status === 1 ? ['online_status' => 1, 'online_last_time' => date('Y-m-d H:i:s')] : ['online_status' => 0];
         $this->update($id, $data);
         clean_cache('adm:nodelist:*');

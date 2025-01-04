@@ -18,11 +18,8 @@ use App\Adm\Service\AdmAuthService;
 use App\Adm\Service\AdmNodeGroupService;
 use App\Adm\Service\AdmNodeService;
 use App\Adm\Service\AdmSystemDictDataService;
-use App\Adm\Utils\AdmCode;
-use App\Adm\Utils\NetworkUtils;
 use Hyperf\Di\Annotation\Inject;
 use Mine\Annotation\Api\MApi;
-use Mine\Exception\NormalStatusException;
 use Mine\MineResponse;
 use Psr\Http\Message\ResponseInterface;
 
@@ -71,28 +68,6 @@ class NodeApi
     {
         $params = $AdmApiRequest->validated();
         $params = $this->authService->getRegistIP($params);
-        // if (! config('app_debug')) {
-        //     $params['ip'] = NetworkUtils::getClientIp();
-        //     if (filter_var($params['ip'], FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
-        //         $params['ipv4'] = $params['ip'];
-        //     } elseif (filter_var($params['ip'], FILTER_VALIDATE_IP, FILTER_FLAG_IPV6)) {
-        //         $params['ipv6'] = $params['ip'];
-        //     } else {
-        //         throw new NormalStatusException(t(key: 'adm.ip_verification_fail'), AdmCode::API_AUTH_IP_FAILD);
-        //     }
-
-        // }
-        // $params['ip'] ??= NetworkUtils::getClientIp();
-        // if (! isset($params['ipv4']) || $params['ipv4'] == '') {
-        //     $params['ipv4'] = null;
-        // }
-        // if (! isset($params['ipv6']) || $params['ipv6'] == '') {
-        //     $params['ipv6'] = null;
-        // }
-        // $enable_warp_node = sys_config('enable_warp_node')['value'] ?? 'false';
-        // if ($enable_warp_node == 'false' && (NetworkUtils::isCFIp($params['ipv4']) || NetworkUtils::isCFIp($params['ipv6']))) {
-        //     throw new NormalStatusException(t(key: 'adm.ip_verification_cf_fail'), AdmCode::API_AUTH_IP_FAILD);
-        // }
         $params['auth_code'] ??= '';
         if (! empty($params['auth_code'])) {
             if ($node = $this->authService->checkAuthCode($params['auth_code'], true)) {

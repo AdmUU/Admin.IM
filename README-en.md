@@ -34,7 +34,7 @@ The front end is developed using Vue3 + Vite5 + TypeScript + Pinia + Arco Design
 - Front-end UI Adm-Frontend-User: [Github](https://github.com/AdmUU/adm-frontend-user) | [Gitee](https://gitee.com/admuu/adm-frontend-user)
 - Backend UI Adm-Frontend-Admin: [Github](https://github.com/AdmUU/adm-frontend-admin) | [Gitee](https://gitee.com/admuu/adm-frontend-admin)
 
-## 🚀 Project installation
+## 🚀 Source installation
 
 ### Environmental requirements
 - Swoole >= 5.0, turn off `Short Name`
@@ -48,7 +48,7 @@ The front end is developed using Vue3 + Vite5 + TypeScript + Pinia + Arco Design
   - redis
   - pcntl
 - MySQL >= 5.7
-- Redis >= 4.0
+- Redis >= 6.2.0
 - Composer >= 2.x
 - Git >= 2.x
 
@@ -82,12 +82,12 @@ php bin/hyperf.php start
 
 ## 🐳 Docker deployment
 
-It is recommended to use docker compose for one-click deployment in the online environment.
+It is recommended to use Docker Compose to deploy online.
 
 ### Prerequisites
-
-- Install Docker and Docker Compose plugins
-- Install MySQL and Redis (optional)
+- System memory is 1G or more. If it is installed on the same server as the database, it should be at least 2G.
+- Install Docker and Docker Compose plugins.
+- Install MySQL and Redis. (You can also use built-in MySQL and Redis)
 
 ### Quick deployment
 
@@ -96,26 +96,32 @@ It is recommended to use docker compose for one-click deployment in the online e
 mkdir admin-im && cd admin-im
 ```
 
-2. Create an environment configuration file .env:
+2. Create and edit the environment configuration file .env:
+```bash
+vim .env
+```
 
 ```properties
 #.env
-ADM_DB_HOST=mysql
-ADM_DB_PORT=3306
-ADM_DB_USERNAME=user
-ADM_DB_PASSWORD=password
-ADM_DB_DATABASE=db_name
-ADM_REDIS_HOST=redis
-ADM_REDIS_PORT=6379
-ADM_REDIS_PASSWORD=redis_password
-ADM_PORT_HTTP=8090
+ADM_DB_HOST=mysql                    #MySQL address
+ADM_DB_PORT=3306                     #MySQL port
+ADM_DB_USERNAME=user                 #MySQL user name
+ADM_DB_PASSWORD=password             #MySQL password
+ADM_DB_DATABASE=db_name              #MySQL database name
+ADM_REDIS_HOST=redis                 #Redis address
+ADM_REDIS_PORT=6379                  #Redis port
+ADM_REDIS_PASSWORD=redis_password    #Redis password
+ADM_PORT_HTTP=8090                   #Access port number
 
-# ADM_DB_ROOT_PASSWORD=admmysqlrootpwd
+#ADM_DB_ROOT_PASSWORD=admmysqlrootpwd # Built-in MySQL root password
 ```
 
-If MySQL and Redis are not installed in advance, uncomment the ADM_DB_ROOT_PASSWORD configuration item above, set the MySQL Root password, and Docker will automatically install it during deployment. The data of the relevant database has been persisted and can be used directly.
+>If MySQL and Redis are not installed in advance, uncomment the ADM_DB_ROOT_PASSWORD configuration item above, set the MySQL root password, and Docker will automatically install it during deployment. The data in the built-in database has been persisted and can be used directly.
 
-3. Create docker-compose.yml:
+3. Create and edit the container orchestration file docker-compose.yml:
+```bash
+vim docker-compose.yml
+```
 
 ```yaml
 #docker-compose.yml
@@ -131,7 +137,7 @@ services:
     volumes:
       - ./data:/data
       - ./data/upload:/opt/www/public/upload
-      - ./data/runtime:/opt/www/runtime
+      - ./data/logs:/opt/www/runtime/logs/debug
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
     env_file:
@@ -233,16 +239,27 @@ volumes:
     driver: local
 ```
 4. Start the service:
+
+>Method 1
 ```bash
 # Use an external database and start directly
 docker compose up -d
+```
 
-# Use the built-in database and install mysql and redis simultaneously
+>Method 2
+```bash
+# Use the built-in database to automatically install Mysql and Redis
 docker compose --profile mysql --profile redis up -d
 ```
 
-5. View the default password:
+5. Check the installation progress:
+
+The system installation takes 1 to 2 minutes. After the installation is successful, the default username is admin, and the default password needs to be checked from the installation log.
 ```bash
+#Monitor the installation progress
+docker logs -f -n 20 admin-im
+
+#View the default password
 docker logs admin-im | grep "Default password"
 ```
 

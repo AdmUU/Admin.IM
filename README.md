@@ -49,7 +49,7 @@ Admin.IM 是开源的网络检测和服务器管理系统。后台及接口基�
   - redis
   - pcntl
 - MySQL >= 5.7
-- Redis >= 4.0
+- Redis >= 6.2.0
 - Composer >= 2.x
 - Git >= 2.x
 
@@ -138,7 +138,7 @@ services:
     volumes:
       - ./data:/data
       - ./data/upload:/opt/www/public/upload
-      - ./data/runtime:/opt/www/runtime
+      - ./data/logs:/opt/www/runtime/logs/debug
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
     env_file:
