@@ -14,14 +14,16 @@ on:
 jobs:
   sync:
     runs-on: ubuntu-22.04
+    if: vars.GITEE_REPO != ''
     env:
       SSH_PRIVATE_KEY: ${{ secrets.GITEE_PRIVATE_KEY }}
-      GITEE_REPOSITORY: ${{ vars.GITEE_REPOSITORY }}
+      GITEE_REPOSITORY: ${{ vars.GITEE_OWNER }}/${{ vars.GITEE_REPO }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
       - name: Setup Private Key
         run: |
           mkdir -p ~/.ssh
@@ -30,7 +32,7 @@ jobs:
           echo "StrictHostKeyChecking no" >> ~/.ssh/config
       - name: Push Mirror
         env:
-          SOURCE_REPO: "https://github.com/${{ github.repository }}.git"
+          SOURCE_REPO: "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git"
           DESTINATION_REPO: "git@gitee.com:${{ env.GITEE_REPOSITORY }}.git"
         run: |
           git clone --mirror "$SOURCE_REPO" && cd `basename "$SOURCE_REPO"`

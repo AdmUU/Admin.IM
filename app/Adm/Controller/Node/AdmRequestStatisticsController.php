@@ -34,10 +34,10 @@ class AdmRequestStatisticsController extends MineController
 {
     #[Inject]
     protected AdmRequestStatisticsService $service;
-    
+
     #[Inject]
     protected AdmAuthService $authService;
-    
+
     #[Inject]
     private AdmIpLocationInterface $ipLocation;
 

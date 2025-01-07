@@ -6,8 +6,8 @@ LABEL maintainer="Admin.IM <dev@admin.im>" version="1.0" license="Apache-2.0" ap
 ARG TZ
 ARG APP_VERSION
 
-ENV TIMEZONE=${TZ} \
-    APP_VERSION=${APP_VERSION} \
+ENV TIMEZONE=${TZ:-"Asia/Shanghai"} \
+    APP_VERSION=${APP_VERSION:-"latest"} \
     APP_ENV=prod \
     SCAN_CACHEABLE=(true) \
     LD_PRELOAD=/usr/lib/preloadable_libiconv.so \

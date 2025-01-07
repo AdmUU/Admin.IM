@@ -134,7 +134,7 @@ class AdmAuthService extends AbstractService
         $clientKey = $params['key'];
         $timestamp = $params['timestamp'];
         $nonce = $params['nonce'];
-        unset($params['apiData'], $params['signature']);
+        unset($params['apiData'], $params['signature'], $params['reqsign']);
 
         ksort($params);
 
@@ -185,11 +185,11 @@ class AdmAuthService extends AbstractService
                 throw new NormalStatusException(t(key: 'adm.ip_verification_fail'), AdmCode::API_AUTH_IP_FAILD);
             }
         }
-        if (! isset($params['ipv4']) || $params['ipv4'] == '') {
-            $params['ipv4'] = null;
+        if (! isset($params['ipv4'])) {
+            $params['ipv4'] = '';
         }
-        if (! isset($params['ipv6']) || $params['ipv6'] == '') {
-            $params['ipv6'] = null;
+        if (! isset($params['ipv6'])) {
+            $params['ipv6'] = '';
         }
         if (empty($params['ipv4']) && empty($params['ipv6'])) {
             throw new NormalStatusException(t(key: 'adm.ip_verification_fail'), AdmCode::API_AUTH_IP_FAILD);
@@ -202,7 +202,7 @@ class AdmAuthService extends AbstractService
     /**
      * Agent IP verification.
      */
-    public function checkAgentIP(?string $ip = null, ?string $ipv6 = null)
+    public function checkAgentIP(?string $ip = '', ?string $ipv6 = '')
     {
         if (empty($ip) && empty($ipv6)) {
             $ip = NetworkUtils::getClientIp();

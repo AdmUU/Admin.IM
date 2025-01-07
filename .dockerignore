@@ -32,10 +32,6 @@ phpstan.neon
 /yarn.lock
 /composer.lock
 
-/plugin
-!/plugin/mine-admin/
-!/plugin/ljk123/
-!/plugin/adm/
 /public/build
 /public/css
 /public/js

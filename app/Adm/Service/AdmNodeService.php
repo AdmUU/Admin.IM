@@ -105,6 +105,11 @@ class AdmNodeService extends AbstractService
      */
     public function save(array $params): mixed
     {
+        $name = '';
+        $name_en = '';
+        $isp = '';
+        $did = '';
+
         $ipNode = $this->checkNodeByIp((string) $params['ipv4'], (string) $params['ipv6']);
         if (! empty($ipNode)) {
             if (count(array_filter($ipNode, fn ($item) => $item['online_status'] == 1)) > 0) {
@@ -129,6 +134,7 @@ class AdmNodeService extends AbstractService
             $name_en = $name_en . '-' . $params['ipLocation']['province'];
         }
         $did = snowflake_id();
+        $nodegroup['share_type'] < 100 && $isp = $params['ipLocation']['isp'] ?: 'prv';
         $sponsor_data = $this->handleSponsor($params, $nodegroup['share_type']);
 
         $data = [
@@ -142,7 +148,7 @@ class AdmNodeService extends AbstractService
             'province' => $params['ipLocation']['province'],
             'region' => $params['ipLocation']['region'],
             'continent' => $params['ipLocation']['continent'],
-            'isp' => $params['ipLocation']['isp'] ?: 'prv',
+            'isp' => $isp,
             'version' => $params['version'],
             'fingerprint' => $params['fingerprint'],
             'connection_type' => $sponsor_data['connection_type'],
@@ -289,7 +295,7 @@ class AdmNodeService extends AbstractService
      */
     public function updateOnlineStatus(int $id, int $status): void
     {
-        if (!$this->get($id)) {
+        if (! $this->get($id)) {
             return;
         }
         $data = $status === 1 ? ['online_status' => 1, 'online_last_time' => date('Y-m-d H:i:s')] : ['online_status' => 0];

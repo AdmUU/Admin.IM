@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace App\Adm\Api\SocketApi;
 
+use App\Adm\Api\Event\AgentEvent;
 use App\Adm\Service\AdmAuthService;
 use App\Adm\Service\AdmCommonService;
 use App\Adm\Service\AdmSocketService;
@@ -22,6 +23,7 @@ use Hyperf\SocketIOServer\Annotation\SocketIONamespace;
 use Hyperf\SocketIOServer\BaseNamespace;
 use Hyperf\SocketIOServer\Socket;
 use Hyperf\WebSocketServer\Context;
+use Psr\EventDispatcher\EventDispatcherInterface;
 
 /**
  * SocketIO agent controller.
@@ -37,6 +39,9 @@ class SocketAgentApi extends BaseNamespace
 
     #[Inject]
     protected AdmCommonService $commonService;
+
+    #[Inject]
+    protected EventDispatcherInterface $evDispatcher;
 
     #[Event('agent-task')]
     public function onAgentTask(Socket $socket, $data)
@@ -82,5 +87,20 @@ class SocketAgentApi extends BaseNamespace
     public function onKeepAlive(Socket $socket): void
     {
         $this->service->agentKeepAlive($socket);
+    }
+
+    #[Event('agent-event')]
+    public function onAgentEvent(Socket $socket, $data)
+    {
+        try {
+            $data = Json::decode($data);
+            if (! $data or ! isset($data['event'])) {
+                return $socket->emit('err', 'Missing parameters');
+            }
+            $event = new AgentEvent($socket, $data);
+            $this->evDispatcher->dispatch($event);
+        } catch (\Throwable $e) {
+            return $socket->emit('err', $e->getMessage());
+        }
     }
 }

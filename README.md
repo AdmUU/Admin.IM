@@ -2,7 +2,7 @@
 # Admin.IM
 
 <div align="center">
-    <img alt="Admin.IM Screenshot" src="./public/static/assets/images/logo.svg" width="120">
+    <img alt="Admin.IM LOGO" src="./public/static/assets/images/logo.svg" width="120">
 </div>
 
 <div align="center">
@@ -297,3 +297,9 @@ ljk123/captcha
 [Arco](https://arco.design/vue)
 
 [Vite](https://vite.dev)
+
+## 📸 系统截图
+
+<img alt="Admin.IM Screenshot" src="https://get.admin.im/screenshot/01.png" width="100%" />
+<img alt="Admin.IM Screenshot" src="https://get.admin.im/screenshot/02.png" width="100%" />
+<img alt="Admin.IM Screenshot" src="https://get.admin.im/screenshot/03.png" width="100%" />

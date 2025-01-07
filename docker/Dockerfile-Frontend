@@ -4,12 +4,21 @@ FROM node:20-alpine3.20 AS build-admin
 
 ARG APP_VERSION
 ARG VITE_ADMIN_TITLE
+ARG USE_CN_MIRROR=false
 
 ENV VITE_APP_TITLE=${VITE_ADMIN_TITLE:-"AdminIM"} \
-    VITE_APP_VERSION=${APP_VERSION:-"1.0"}
+    VITE_APP_VERSION=${APP_VERSION:-"latest"}
+
+RUN if [ "$USE_CN_MIRROR" = "true" ]; then \
+    npm config set registry https://registry.npmmirror.com; \
+    fi
 
 RUN --mount=type=cache,target=/root/.npm,id=npm-cache \
     npm install -g pnpm
+
+RUN if [ "$USE_CN_MIRROR" = "true" ]; then \
+    pnpm config set registry https://registry.npmmirror.com; \
+    fi
 
 WORKDIR /opt/www/
 
@@ -33,12 +42,21 @@ FROM node:20-alpine3.20 AS build-user
 
 ARG APP_VERSION
 ARG VITE_USER_TITLE
+ARG USE_CN_MIRROR=false
 
 ENV VITE_APP_TITLE=${VITE_USER_TITLE:-"AdminIM"} \
-    VITE_APP_VERSION=${APP_VERSION:-"1.0"}
+    VITE_APP_VERSION=${APP_VERSION:-"latest"}
+
+RUN if [ "$USE_CN_MIRROR" = "true" ]; then \
+    npm config set registry https://registry.npmmirror.com; \
+    fi
 
 RUN --mount=type=cache,target=/root/.npm,id=npm-cache \
     npm install -g pnpm
+
+RUN if [ "$USE_CN_MIRROR" = "true" ]; then \
+    pnpm config set registry https://registry.npmmirror.com; \
+    fi
 
 WORKDIR /opt/www/
 

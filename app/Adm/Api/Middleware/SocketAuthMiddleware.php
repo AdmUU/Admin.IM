@@ -62,6 +62,8 @@ class SocketAuthMiddleware implements MiddlewareInterface
             if (! $ip = NetworkUtils::getClientIp(null, true)) {
                 throw new NormalStatusException(t('adm.ip_verification_fail'), code: AdmCode::API_AUTH_IP_FAILD);
             }
+            $userAgent = $request->header('user-agent');
+            alog(sprintf('%s [%s] try to connect.', $ip, $userAgent), 'info', 'Socket', null, true);
 
             $ipKey = substr(md5($ip), 0, 16);
             $request60_key = 'apiLimit:ip:' . $ipKey . ':60';
