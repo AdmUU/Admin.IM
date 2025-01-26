@@ -14,10 +14,10 @@ on:
 jobs:
   sync:
     runs-on: ubuntu-22.04
-    if: vars.GITEE_REPO != ''
+    if: vars.GITEE_REPOSITORY != ''
     env:
       SSH_PRIVATE_KEY: ${{ secrets.GITEE_PRIVATE_KEY }}
-      GITEE_REPOSITORY: ${{ vars.GITEE_OWNER }}/${{ vars.GITEE_REPO }}
+      GITEE_REPOSITORY: ${{ vars.GITEE_REPOSITORY }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4

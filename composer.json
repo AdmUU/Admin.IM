@@ -20,7 +20,7 @@
     "hyperf/utils": "^3.1",
     "hyperf/websocket-server": "^3.1",
     "mineadmin/app-store": "2.0.*",
-    "webmaster/maxmind-db-reader": "dev-main",
+    "webmaster/maxmind-db-reader": "~1.0",
     "xmo/jwt-auth": "~2.0",
     "xmo/mine-core": "2.0.*",
     "xmo/mine-generator": "~2.0",

@@ -45,14 +45,16 @@ class OnlineStatusTask
     {
         try {
             $redis = redis();
-            $cacheNodes = array_keys($redis->hgetall('node:connect'));
+            $connectNodes = $redis->hgetall('node:connect');
+            $cacheNodes = array_keys($connectNodes);
             $dbNodes = array_column($this->service->getNodeList(['id']), 'id');
             $nodeIDs = array_values(array_unique(array_merge($cacheNodes, $dbNodes)));
             if (count($nodeIDs) > 0) {
                 $cacheSids = array_values($redis->hmget('node:sid', array_map('strval', $nodeIDs)));
                 $expireAgents = $redis->zmscore('ws:/agent:expire', ...$cacheSids);
                 foreach ($nodeIDs as $index => $nodeID) {
-                    if (! empty($expireAgents[$index]) && $expireAgents[$index] >= time()) {
+                    if ((! empty($expireAgents[$index]) && $expireAgents[$index] >= (microtime(true) - 120) * 1000)
+                        || (isset($connectNodes[$nodeID]) && strtotime($connectNodes[$nodeID]) >= time() - 120)) {
                         unset($nodeIDs[$index]);
                     }
                 }
