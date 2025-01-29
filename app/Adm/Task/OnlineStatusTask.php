@@ -21,7 +21,7 @@ use Hyperf\Di\Annotation\Inject;
 /**
  * Crontab task for online status.
  */
-#[Crontab(name: 'OnlineStatus', rule: '* * * * *', callback: 'execute', memo: 'Online Status')]
+#[Crontab(name: 'OnlineStatus', rule: '* * * * *', callback: 'execute', singleton: true, onOneServer: true, memo: 'Online Status')]
 class OnlineStatusTask
 {
     #[Inject]

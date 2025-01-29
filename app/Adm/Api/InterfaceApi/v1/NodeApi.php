@@ -76,6 +76,13 @@ class NodeApi
                 return $this->response->success('Success', $res);
             }
         }
+        $node = $this->service->checkNodeByIp((string) $params['ipv4'], (string) $params['ipv6']);
+        if (! empty($node)) {
+            $node = $node[0];
+            $this->service->updateAgent($node, $params);
+            $res = ['auth_code' => $node['auth_code'], 'did' => (string) $node['did']];
+            return $this->response->success('Success', $res);
+        }
         return $this->response->success('Success', $this->service->save($params));
     }
 }

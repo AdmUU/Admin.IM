@@ -20,7 +20,7 @@ use Hyperf\Di\Annotation\Inject;
 /**
  * Crontab task for request statistics.
  */
-#[Crontab(name: 'RequestStatistics', rule: '* * * * *', callback: 'execute', memo: 'Request Statistics')]
+#[Crontab(name: 'RequestStatistics', rule: '* * * * *', callback: 'execute', singleton: true, onOneServer: true, memo: 'Request Statistics')]
 class RequestStatisticsTask
 {
     #[Inject]

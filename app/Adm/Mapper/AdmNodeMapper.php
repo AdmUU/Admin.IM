@@ -266,7 +266,7 @@ class AdmNodeMapper extends AbstractMapper
                 if (! empty($ipv6)) {
                     $query->orWhere('ipv6', '=', $ipv6);
                 }
-            })->select(['id', 'name', 'enable', 'online_status'])->get();
+            })->get();
         return $result ? $result->toArray() : null;
     }
 
