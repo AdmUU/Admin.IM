@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace App\Adm\Listener;
 
 use App\Adm\Service\AdmNodeService;
+use App\Adm\Task\OnlineStatusTask;
 use Hyperf\Event\Annotation\Listener;
 use Hyperf\Event\Contract\ListenerInterface;
 use Hyperf\Framework\Event\MainWorkerStart;
@@ -46,6 +47,7 @@ class BootListener implements ListenerInterface
      */
     private function resetNodeStatus(): void
     {
-        make(AdmNodeService::class)->resetNodeStatus();
+        // make(AdmNodeService::class)->resetNodeStatus();
+        make(OnlineStatusTask::class)->checkStatus(true);
     }
 }

@@ -40,8 +40,9 @@ class OnlineStatusTask
 
     /**
      * Check online status.
+     * @param mixed $deleteKey
      */
-    public function checkStatus(): void
+    public function checkStatus($deleteKey = false): void
     {
         try {
             $redis = redis();
@@ -53,12 +54,21 @@ class OnlineStatusTask
                 $cacheSids = array_values($redis->hmget('node:sid', array_map('strval', $nodeIDs)));
                 $expireAgents = $redis->zmscore('ws:/agent:expire', ...$cacheSids);
                 foreach ($nodeIDs as $index => $nodeID) {
-                    if ((! empty($expireAgents[$index]) && $expireAgents[$index] >= (microtime(true) - 120) * 1000)
-                        || (isset($connectNodes[$nodeID]) && strtotime($connectNodes[$nodeID]) >= time() - 120)) {
+                    if ((! empty($expireAgents[$index]) && $expireAgents[$index] >= (microtime(true) - 3) * 1000)
+                        || (isset($connectNodes[$nodeID]) && strtotime($connectNodes[$nodeID]) >= time() - 3)) {
                         unset($nodeIDs[$index]);
                     }
                 }
                 if (count($nodeIDs) > 0) {
+                    if ($deleteKey) {
+                        foreach ($nodeIDs as $nodeID) {
+                            $nodeSid = $redis->hGet('node:sid', (string) $nodeID);
+                            if ($nodeSid) {
+                                $redis->sRem('node:disconnect', $nodeSid);
+                                $redis->hDel('node:sid', (string) $nodeID);
+                            }
+                        }
+                    }
                     $socketService = container()->get(AdmSocketService::class);
                     $socketService->nodeDisconnect($nodeIDs);
                     alog('Disconnect nodes by checkStatus: ' . implode(',', $nodeIDs), 'info', 'Crontab', null, true);
