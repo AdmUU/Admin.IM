@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace App\Adm\Service;
 
 use App\Adm\Mapper\SystemDictDataMapper;
+use App\Adm\Utils\LangUtils;
 use Hyperf\Cache\Annotation\Cacheable;
 use Hyperf\Cache\Annotation\CacheAhead;
 use Mine\Abstracts\AbstractService;
@@ -57,7 +58,7 @@ class AdmSystemDictDataService extends AbstractService
         $dictData = $this->getList();
         $list = [];
         foreach ($dictData as $dict) {
-            $list[$dict['code']][$dict['key']] = $dict['title'];
+            $list[$dict['code']][\strtolower($dict['key'])] = $dict['title'];
         }
         return $list;
     }
@@ -65,13 +66,17 @@ class AdmSystemDictDataService extends AbstractService
     /**
      * Get countries list.
      */
-    #[Cacheable(prefix: 'adm:dict:countries', ttl: 3600, listener: 'system-dict-update')]
-    public function getCountriesList(): array
+    #[Cacheable(prefix: 'adm:dict:countries', value: '_#{type}', ttl: 3600, listener: 'system-dict-update')]
+    public function getCountriesList($type = 'pairs'): array
     {
         $dictData = $this->getList(['code' => 'country_code']);
         $list = [];
         foreach ($dictData as $dict) {
-            $list[$dict['key']] = $dict['title'];
+            if ($type === 'details') {
+                $list[$dict['key']] = $dict;
+            } else {
+                $list[$dict['key']] = $dict['title'];
+            }
         }
         return $list;
     }
@@ -79,13 +84,17 @@ class AdmSystemDictDataService extends AbstractService
     /**
      * Get ISP list.
      */
-    #[Cacheable(prefix: 'adm:dict:isp', ttl: 3600, listener: 'system-dict-update')]
-    public function getIspList(): array
+    #[Cacheable(prefix: 'adm:dict:isp', value: '_#{type}', ttl: 3600, listener: 'system-dict-update')]
+    public function getIspList($type = 'remark'): array
     {
         $ispDictData = $this->getList(['code' => 'ISP']);
         $isp = [];
         foreach ($ispDictData as $dict) {
-            $isp[\strtolower($dict['key'])] = $dict['remark'] ? explode('|', $dict['remark']) : [];
+            if ($type === 'details') {
+                $isp[\strtolower($dict['key'])] = $dict;
+            } else {
+                $isp[\strtolower($dict['key'])] = $dict['remark'] ? explode('|', $dict['remark']) : [];
+            }
         }
         return $isp;
     }
@@ -121,10 +130,28 @@ class AdmSystemDictDataService extends AbstractService
             }
         }
         $list = $this->mapper->getNodeList($params);
+        $countries = $this->getCountriesList('details');
+        $isps = $this->getIspList('details');
         foreach ($list as $isp) {
             $items = array_merge($items, $isp['nodes']);
         }
-        $nodeList['items'] = array_map(function ($node) {
+        $nodeList['items'] = array_map(function ($node) use ($countries, $isps) {
+            $node['country_name'] = '';
+            $node['country_name_en'] = '';
+            $node['isp_name'] = '';
+            $node['isp_name_en'] = '';
+            $node['province_name'] = '';
+            if (isset($countries[$node['country']])) {
+                $node['country_name'] = $countries[$node['country']]['title'];
+                $node['country_name_en'] = $countries[$node['country']]['label_en'];
+            }
+            if (isset($isps[$node['isp']])) {
+                $node['isp_name'] = $isps[$node['isp']]['title'];
+                $node['isp_name_en'] = $isps[$node['isp']]['label_en'];
+            }
+            if (isset(LangUtils::CN_PROVINCE[$node['province']])) {
+                $node['province_name'] = LangUtils::CN_PROVINCE[$node['province']];
+            }
             if (! empty($node['ipv4'])) {
                 $node['ip'] = preg_replace('/\.\d+\.\d+\.\d+/', '.*.*.*', $node['ipv4']);
             } elseif (! empty($node['ipv6'])) {
@@ -133,7 +160,8 @@ class AdmSystemDictDataService extends AbstractService
             if (! empty($node['sponsor_name']) && $node['sponsor_status'] == 'approval') {
                 $node['name'] = $node['name'] . ' (' . $node['sponsor_name'] . ')';
             }
-            unset($node['id'], $node['ipv4'], $node['ipv6'], $node['sponsor_name'], $node['sponsor_status']);
+            unset($node['id'], $node['ip'], $node['ipv4'], $node['ipv6'], $node['sponsor_name'], $node['sponsor_status']);
+            ksort($node);
             return $node;
         }, $items);
         $nodeList['ids'] = array_map(function ($node) {

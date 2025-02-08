@@ -50,6 +50,7 @@ class AdmSystemConfigService extends AbstractService
                 $site_logo = $site_url . $log_url['url'];
             }
         }
+        $enable_ping_china_map = sys_config('enable_ping_china_map');
         return [
             'site_name' => $site_name['value'],
             'site_subtitle' => $site_subtitle['value'],
@@ -57,6 +58,7 @@ class AdmSystemConfigService extends AbstractService
             'site_copyright' => $site_copyright['value'],
             'site_record_number' => $site_record_number['value'],
             'index_banner' => $index_banner['value'],
+            'enable_ping_china_map' => $enable_ping_china_map['value'],
         ];
     }
 }

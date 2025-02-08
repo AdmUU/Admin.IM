@@ -25,11 +25,14 @@ class AdmSettingConfigSeeder extends Seeder
         Db::table('setting_config')->insert(
             $data
         );
-        Db::table('setting_config')->where('key', 'enable_warp_node')->update([
-            'remark' => 'extra_enable_warp_node',
-        ]);
         Db::table('setting_config')->where('key', 'websocket_url')->update([
             'remark' => 'extra_websocket_url',
+        ]);
+        Db::table('setting_config')->where('key', 'enable_ping_china_map')->update([
+            'remark' => 'extra_enable_ping_china_map',
+        ]);
+        Db::table('setting_config')->where('key', 'enable_warp_node')->update([
+            'remark' => 'extra_enable_warp_node',
         ]);
     }
 
@@ -124,12 +127,21 @@ class AdmSettingConfigSeeder extends Seeder
             ],
             [
                 'group_id' => 1,
+                'key' => 'enable_ping_china_map',
+                'value' => 'true',
+                'name' => 'China Map',
+                'input_type' => 'switch',
+                'config_select_data' => '',
+                'sort' => 90,
+            ],
+            [
+                'group_id' => 1,
                 'key' => 'enable_warp_node',
                 'value' => 'false',
                 'name' => 'Warp Node',
                 'input_type' => 'switch',
                 'config_select_data' => '',
-                'sort' => 90,
+                'sort' => 70,
             ],
             [
                 'group_id' => 2,

@@ -87,6 +87,9 @@ return (new PhpCsFixer\Config())
             ->exclude('vendor')
             ->exclude('bin')
             ->exclude('runtime')
-            ->in(__DIR__)
+            ->in([
+                __DIR__ . '/app/Adm',
+                __DIR__ . '/plugin'
+            ])
     )
     ->setUsingCache(false);

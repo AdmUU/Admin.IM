@@ -156,4 +156,26 @@ class AdmNode extends MineModel
     {
         return $this->belongsTo(AdmNodeGroup::class, 'adm_node_group_id', 'id');
     }
+
+    /**
+     * Defining countryData related table.
+     *
+     * @return belongsTo
+     */
+    public function countryData()
+    {
+        return $this->belongsTo(AdmSystemDictData::class, 'country', 'value')
+            ->where('code', 'country_code');
+    }
+
+    /**
+     * Defining ispData related table.
+     *
+     * @return belongsTo
+     */
+    public function ispData()
+    {
+        return $this->belongsTo(AdmSystemDictData::class, 'isp', 'value')
+            ->where('code', 'isp');
+    }
 }
