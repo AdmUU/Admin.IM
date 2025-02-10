@@ -78,28 +78,34 @@ class NetworkUtils extends AbstractService
             }
         }
 
-        $parsed = parse_url($input);
-        if (filter_var($input, FILTER_VALIDATE_URL) || isset($parsed['host']) || preg_match('/\[.*\]/', $input)) {
+        if (filter_var($input, FILTER_VALIDATE_URL) || preg_match('/^\[.*\]/', $input)) {
+            if (! filter_var($input, FILTER_VALIDATE_URL) && preg_match('/^\[.*\]/', $input)) {
+                $parsed = parse_url('http://' . $input);
+            } else {
+                $parsed = parse_url($input);
+            }
+            if (! isset($parsed['host'])) {
+                return false;
+            }
+
             $parsed['host'] = idn_to_ascii($parsed['host'], IDNA_DEFAULT, INTL_IDNA_VARIANT_UTS46);
             $result = ['type' => 'URL'];
 
-            if (isset($parsed['host'])) {
-                if (preg_match('/^\[(.*)\]$/', $parsed['host'], $matches)) {
-                    $ipv6 = $matches[1];
-                    if (filter_var($ipv6, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6)) {
-                        $result['address_type'] = 'ipv6';
-                        $result['address'] = $ipv6;
-                    }
-                } elseif (filter_var($parsed['host'], FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
-                    $result['address_type'] = 'ipv4';
-                    $result['address'] = $parsed['host'];
-                } elseif (filter_var($parsed['host'], FILTER_VALIDATE_IP, FILTER_FLAG_IPV6)) {
+            if (preg_match('/^\[(.*)\]$/', $parsed['host'], $matches)) {
+                $ipv6 = $matches[1];
+                if (filter_var($ipv6, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6)) {
                     $result['address_type'] = 'ipv6';
-                    $result['address'] = $parsed['host'];
-                } else {
-                    $result['address_type'] = 'domain';
-                    $result['address'] = $parsed['host'];
+                    $result['address'] = $ipv6;
                 }
+            } elseif (filter_var($parsed['host'], FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
+                $result['address_type'] = 'ipv4';
+                $result['address'] = $parsed['host'];
+            } elseif (filter_var($parsed['host'], FILTER_VALIDATE_IP, FILTER_FLAG_IPV6)) {
+                $result['address_type'] = 'ipv6';
+                $result['address'] = $parsed['host'];
+            } else {
+                $result['address_type'] = 'domain';
+                $result['address'] = $parsed['host'];
             }
 
             if (isset($parsed['port'])) {
