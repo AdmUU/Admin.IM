@@ -122,6 +122,7 @@ class AdmNodeService extends AbstractService
         }
         $params['ipLocation'] = $this->ipLocation->search($params['ip']);
 
+        $nodegroup['share_type'] < 100 && $isp = $params['ipLocation']['isp'] ?: 'prv';
         $auth_code = $this->generateAuthCode();
 
         $site_language = sys_config('site_language')['value'];
@@ -130,11 +131,16 @@ class AdmNodeService extends AbstractService
         $name = $site_language == 'zh-CN' ? LangUtils::getCnName($params['ipLocation']['country'], 'country') : $name_en;
         if (! empty($params['ipLocation']['province'])) {
             $province_name = $site_language == 'zh-CN' ? LangUtils::getCnName($params['ipLocation']['province'], 'province', $params['ipLocation']['country']) : $params['ipLocation']['province'];
-            $name = $name . $province_name;
-            $name_en = $name_en . '-' . $params['ipLocation']['province'];
+            if (in_array($isp, ['ct', 'cu', 'cm', 'cb', 'ce', 'cs', 'cbg'])) {
+                $isps = $this->dictDataService->getIspList('details');
+                $name = $province_name . $isps[$isp]['title'];
+                $name_en = $name_en . '-' . ucfirst($params['ipLocation']['province']) . '(' . strtoupper($isp) . ')';
+            } else {
+                $name = $name . $province_name;
+                $name_en = $name_en . '-' . ucfirst($params['ipLocation']['province']);
+            }
         }
         $did = snowflake_id();
-        $nodegroup['share_type'] < 100 && $isp = $params['ipLocation']['isp'] ?: 'prv';
         $sponsor_data = $this->handleSponsor($params, $nodegroup['share_type']);
 
         $data = [

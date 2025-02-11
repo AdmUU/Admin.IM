@@ -46,7 +46,7 @@ class AdmIpLocationService implements AdmIpLocationInterface
         }
         $data['country'] = strtoupper($readerData['country']);
         $data['continent'] = strtoupper($readerData['continent']);
-        $data['as_name'] = $readerData['as_name'];
+        $data['as_name'] = $readerData['as_name'] . ' ' . $readerData['as_domain'];
         $data['asn'] = $readerData['asn'];
         if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) && $data['country'] === 'CN') {
             $cndata = $this->ip2region($ip);
@@ -58,7 +58,7 @@ class AdmIpLocationService implements AdmIpLocationInterface
             $data['country'] = 'CN';
             $data['region'] = 'hkmotw';
         }
-        $data['isp'] = LangUtils::getIsp($readerData['as_name'], $data['country']) ?: $data['isp'];
+        $data['isp'] = LangUtils::getIsp($data['as_name'], $data['country']) ?: $data['isp'];
         return $format === 'string' ? $data['country'] . ' ' . $data['as_name'] : $data;
     }
 

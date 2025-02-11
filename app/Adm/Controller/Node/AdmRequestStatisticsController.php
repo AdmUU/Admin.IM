@@ -60,7 +60,8 @@ class AdmRequestStatisticsController extends MineController
         $headers = $this->request->getHeaders();
         $serverParams = $this->request->getServerParams();
         $params = $this->authService->getRegistIP($serverParams);
-        $params['ipLocation'] = $this->ipLocation->search('114.66.63.162');
+        $ip = $this->request->input('ip') ? $this->request->input('ip') : $params['ip'];
+        $params['ipLocation'] = $this->ipLocation->search($ip);
         \print_r($headers);
         \print_r($params);
     }
