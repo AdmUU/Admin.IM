@@ -58,7 +58,7 @@ class NetworkUtils extends AbstractService
      */
     public static function validateIPDomain(string $input): array|bool
     {
-        $input = preg_replace('/^[\s\/\:]*([^\s\/\:]+)[\s\/\:]*$/', '$1', $input);
+        $input = trim($input, " \t\n\r\0\x0B/:");
         if (filter_var($input, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
             return ['address_type' => 'ipv4', 'address' => $input];
         }
@@ -71,19 +71,17 @@ class NetworkUtils extends AbstractService
             if (preg_match('/^((?!-)[A-Za-z0-9-]{1,63}(?<!-)\.)+[A-Za-z]{2,6}(:\d{1,5})?$/', $domain, $matches)) {
                 $parts = explode(':', $domain);
                 $result = ['address_type' => 'domain', 'address' => $parts[0]];
-                if (isset($parts[1])) {
+                if (isset($parts[1]) && $parts[1] > 10 && $parts[1] <= 65535) {
                     $result['port'] = $parts[1];
                 }
                 return $result;
             }
         }
 
-        if (filter_var($input, FILTER_VALIDATE_URL) || preg_match('/^\[.*\]/', $input)) {
-            if (! filter_var($input, FILTER_VALIDATE_URL) && preg_match('/^\[.*\]/', $input)) {
-                $parsed = parse_url('http://' . $input);
-            } else {
-                $parsed = parse_url($input);
-            }
+        if (! strpos($input, '://')) {
+            $input = 'http://' . $input;
+        }
+        if ($parsed = parse_url($input)) {
             if (! isset($parsed['host'])) {
                 return false;
             }
@@ -103,7 +101,7 @@ class NetworkUtils extends AbstractService
             } elseif (filter_var($parsed['host'], FILTER_VALIDATE_IP, FILTER_FLAG_IPV6)) {
                 $result['address_type'] = 'ipv6';
                 $result['address'] = $parsed['host'];
-            } else {
+            } elseif (filter_var($parsed['host'], FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)) {
                 $result['address_type'] = 'domain';
                 $result['address'] = $parsed['host'];
             }
@@ -112,7 +110,7 @@ class NetworkUtils extends AbstractService
                 $result['port'] = $parsed['port'];
             }
 
-            return $result;
+            return isset($result['address']) ? $result : false;
         }
 
         return false;
