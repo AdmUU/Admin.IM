@@ -10,7 +10,7 @@ declare(strict_types=1);
  * @license  https://github.com/AdmUU/Admin.IM/blob/main/LICENSE
  */
 
-namespace Plugin\Ping\Service;
+namespace Plugin\Webspeed\Service;
 
 use App\Adm\Interfaces\AdmIpLocationInterface;
 use App\Adm\Service\AdmAuthService;
@@ -23,9 +23,9 @@ use Hyperf\WebSocketServer\Context;
 use Mine\Abstracts\AbstractService;
 
 /**
- * Ping Service.
+ * Webspeed Service.
  */
-class PingService extends AbstractService
+class WebspeedService extends AbstractService
 {
     #[Inject]
     protected AdmAuthService $authService;
@@ -41,24 +41,19 @@ class PingService extends AbstractService
      */
     public function processRequestTask(Socket $socket, array $task, string $taskId): void
     {
-        $host = $task['host'];
-        $pingtype = $task['ping_type'];
-        $protocol = $task['ping_protocol'];
+        $content = $task['content'];
+        $type = $task['type'];
         $sid = $socket->getSid();
-        if (! in_array($pingtype, ['single', 'continuous'])) {
-            $socket->emit('err', 'Invalid pingtype');
+        if (! in_array($type, ['quick', 'slow'])) {
+            $socket->emit('err', 'Invalid webspeedtype');
             return;
         }
-        if (! in_array($protocol, ['icmp', 'tcp'])) {
-            $socket->emit('err', 'Invalid protocol');
-            return;
-        }
+
         $task['to'] = $sid;
-        $this->authService->setSocketTask('ping', $task, $taskId);
+        $this->authService->setSocketTask('webspeed', $task, $taskId);
         $requestData = [
-            'host' => $host,
-            'pingtype' => $pingtype,
-            'protocol' => $protocol,
+            'content' => $content,
+            'type' => $type,
             'taskId' => $taskId,
             'clientIP' => $task['client_ip'],
         ];
@@ -67,12 +62,17 @@ class PingService extends AbstractService
         $snapNodeList = $redis->get($task['node_snapshot']);
         $nodeList = unserialize($snapNodeList);
         $io = container()->get(SocketIO::class);
+        $i = 0;
         foreach ($nodeList as $nodeID) {
+            if ($i > 0 && $i % 5 === 0) {
+                sleep(3);
+            }
             $nodeSid = $redis->hget('node:sid', (string) $nodeID);
-            $nodeSid && $io->of('/agent')->to($nodeSid)->emit('request-ping', $requestData);
+            $nodeSid && $io->of('/agent')->to($nodeSid)->emit('request-webspeed', $requestData);
+            ++$i;
         }
         Context::set('task:node_snapshot', $task['node_snapshot']);
-        $this->requestStatistics->add('ping');
+        $this->requestStatistics->add('webspeed');
     }
 
     /**
@@ -87,28 +87,20 @@ class PingService extends AbstractService
             $sid = $socket->getSid();
             $fd = CoContext::get('ws.fd', 0);
             $did = Context::get('socket:nodeDid', null, $fd);
-            $responseData = [];
-            if (isset($res['delay'])) {
-                $responseData = [
-                    'delay' => $res['delay'],
-                    'sid' => $sid,
-                    'did' => $did,
-                ];
+            $responseData = ['httpCode' => '-1'];
+            if (isset($res['httpCode'])) {
+                $responseData = $res;
             } elseif (isset($res['ip'])) {
-                $pingIP = $res['ip'];
-                if (isset($res['port']) && $res['port'] != '') {
-                    $pingIP = $res['ipVersion'] == 'IPv6' ? '[' . $res['ip'] . ']' : $pingIP;
-                    $pingIP = $pingIP . ':' . $res['port'];
-                }
+                $webspeedIP = $res['ip'];
                 $responseData = [
-                    'ip' => $pingIP,
+                    'ip' => $webspeedIP,
                     'location' => $this->ipLocation->getName($res['ip'], $locale),
-                    'sid' => $sid,
-                    'did' => $did,
                 ];
             }
+            $responseData['sid'] = $sid;
+            $responseData['did'] = $did;
             $io = container()->get(SocketIO::class);
-            $io->of('/web')->to($to)->emit('response-ping', $responseData);
+            $io->of('/web')->to($to)->emit('response-webspeed', $responseData);
         } catch (\Throwable $e) {
             \exception_log($e);
             $socket->emit('err', $e->getMessage());

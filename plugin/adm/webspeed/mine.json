@@ -1,0 +1,23 @@
+{
+    "name": "adm/webspeed",
+    "version": "1.0.0",
+    "type": "mixed",
+    "description": "Webspeed plugin for adm server.",
+    "author": [
+        {
+            "name": "admin.im"
+        }
+    ],
+    "composer": {
+        "require": [],
+        "psr-4": {
+            "Plugin\\Webspeed\\": "src"
+        },
+        "installScript": "Plugin\\Webspeed\\InstallScript",
+        "uninstallScript": "Plugin\\Webspeed\\UninstallScript",
+        "config": "Plugin\\Webspeed\\ConfigProvider"
+    },
+    "package": {
+        "dependencies": []
+    }
+}

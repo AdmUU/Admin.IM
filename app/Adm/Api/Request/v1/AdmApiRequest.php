@@ -33,7 +33,7 @@ class AdmApiRequest extends MineApiFormRequest
             'prefer_ip_type' => 'string|in:ipv4,ipv6,dual',
             'dict_code' => 'string|in:region,isp',
             'dict_value' => 'string',
-            'task_type' => 'string|in:ping',
+            'task_type' => 'string|in:ping,webspeed',
             'task_id' => 'string',
         ];
     }

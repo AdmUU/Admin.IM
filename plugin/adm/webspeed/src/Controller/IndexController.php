@@ -10,7 +10,7 @@ declare(strict_types=1);
  * @license  https://github.com/AdmUU/Admin.IM/blob/main/LICENSE
  */
 
-namespace Plugin\Ping\Controller;
+namespace Plugin\Webspeed\Controller;
 
 use App\Adm\Annotation\ApiLimit;
 use App\Adm\Service\AdmAuthService;
@@ -23,13 +23,13 @@ use Hyperf\Di\Annotation\Inject;
 use Hyperf\HttpServer\Annotation\Controller;
 use Hyperf\HttpServer\Annotation\PostMapping;
 use Mine\MineResponse;
-use Plugin\Ping\Request\PingRequest;
+use Plugin\Webspeed\Request\WebspeedRequest;
 use Psr\Http\Message\ResponseInterface;
 
 /**
- * Ping plugin.
+ * Webspeed plugin.
  */
-#[Controller(prefix: 'plugin/ping')]
+#[Controller(prefix: 'plugin/webspeed')]
 class IndexController
 {
     protected SystemUserMapper $user;
@@ -62,10 +62,10 @@ class IndexController
      */
     #[ApiLimit]
     #[PostMapping('requestTask')]
-    public function requestTask(PingRequest $PingRequest): ResponseInterface
+    public function requestTask(WebspeedRequest $WebspeedRequest): ResponseInterface
     {
-        $data = $PingRequest->validated();
-        if (! $validateHost = NetworkUtils::validateIPDomain($data['host'])) {
+        $data = $WebspeedRequest->validated();
+        if (! $validateHost = NetworkUtils::validateIPDomain($data['content'])) {
             return $this->response->error(t('adm.invalid host'));
         }
         if ($validateHost['address_type'] == 'domain') {
@@ -75,27 +75,22 @@ class IndexController
         } else {
             $prefer_ip_type = $validateHost['address_type'];
         }
-        $validateHost['address'] = $validateHost['address_type'] == 'ipv4' ? $validateHost['address'] : '[' . $validateHost['address'] . ']';
-        if ($data['ping_protocol'] == 'tcp') {
-            $hostPort = $validateHost['port'] ?? (strpos(trim($data['host']), 'https://') === 0 ? 443 : 80);
-            $validateHost['address'] = $validateHost['address'] . ':' . $hostPort;
-        }
+        // $validateHost['address'] = $validateHost['address_type'] == 'ipv4' ? $validateHost['address'] : '[' . $validateHost['address'] . ']';
         $locale = $data['locale'] == 'en' || $data['locale'] == 'en-US' ? 'en' : 'zh-CN';
         $configAddr = sys_config('site_url');
         $token = $this->authService->getSocketToken('web');
         $taskId = $this->authService->setSocketTask(
-            'ping',
+            'webspeed',
             [
                 'address_type' => $validateHost['address_type'],
                 'client_type' => $data['client_type'] ?? 'web',
                 'client_ip' => NetworkUtils::getClientIp(),
-                'ping_protocol' => $data['ping_protocol'],
-                'ping_type' => $data['ping_type'],
-                'host' => $validateHost['address'],
+                'type' => $data['type'],
+                'content' => $data['content'],
                 'prefer_ip_type' => $prefer_ip_type,
                 'locale' => $locale,
                 'loc' => 'all',
-                'class_name' => 'Plugin\Ping\Service\PingService',
+                'class_name' => 'Plugin\Webspeed\Service\WebspeedService',
                 'request_method' => 'processRequestTask',
                 'response_method' => 'processResponseTask',
             ]
@@ -103,7 +98,7 @@ class IndexController
         $res = [
             'websocket_address' => $configAddr['value'] . '/web',
             'node_type' => $validateHost['address_type'],
-            'host' => $validateHost['address'],
+            'content' => $data['content'],
             'token' => $token,
             'task_id' => $taskId,
         ];
