@@ -189,17 +189,18 @@ class AdmSocketService extends AbstractService
     /**
      * Update the nodes.
      */
-    public function nodeUpdate(array $nodeIDs): bool
+    public function nodeUpdate(array $nodeIDs): int
     {
         $redis = redis();
         $socket = container()->get(SocketIO::class);
-        $sid = null;
+        $sid_count = 0;
         foreach ($nodeIDs as $nodeID) {
             $sid = $redis->hget('node:sid', (string) $nodeID);
             if ($sid) {
                 $socket->of('/agent')->to($sid)->emit('update', 'Self update');
+                ++$sid_count;
             }
         }
-        return ! empty($sid);
+        return $sid_count;
     }
 }
