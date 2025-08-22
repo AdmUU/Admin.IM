@@ -64,6 +64,7 @@ class AdmApiRequest extends MineApiFormRequest
     {
         return [
             'auth_code' => 'required|string',
+            'version' => 'string',
         ];
     }
 

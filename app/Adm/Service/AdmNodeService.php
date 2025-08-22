@@ -193,13 +193,13 @@ class AdmNodeService extends AbstractService
     public function updateAgent(array $node, array $params): mixed
     {
         $updateData = [];
-        if ($params['ipv4'] !== $node['ipv4']) {
+        if (isset($params['ipv4']) && $params['ipv4'] !== $node['ipv4']) {
             $updateData['ipv4'] = $params['ipv4'];
         }
-        if ($params['ipv6'] !== $node['ipv6']) {
+        if (isset($params['ipv6']) && $params['ipv6'] !== $node['ipv6']) {
             $updateData['ipv6'] = $params['ipv6'];
         }
-        if ($params['version'] !== $node['version']) {
+        if (isset($params['version']) && $params['version'] !== $node['version']) {
             $updateData['version'] = $params['version'];
         }
         if (isset($params['sponsor_id']) && ! empty($params['sponsor_id'] && empty($node['sponsor_id']))) {

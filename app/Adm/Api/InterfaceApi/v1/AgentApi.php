@@ -15,6 +15,7 @@ namespace App\Adm\Api\InterfaceApi\v1;
 use App\Adm\Annotation\ApiLimit;
 use App\Adm\Api\Request\v1\AdmApiRequest;
 use App\Adm\Service\AdmAuthService;
+use App\Adm\Service\AdmNodeService;
 use App\Adm\Utils\AdmCode;
 use Hyperf\Di\Annotation\Inject;
 use Mine\Annotation\Api\MApi;
@@ -29,6 +30,9 @@ class AgentApi
 {
     #[Inject]
     protected AdmAuthService $authService;
+
+    #[Inject]
+    protected AdmNodeService $nodeService;
 
     #[Inject]
     protected MineResponse $response;
@@ -57,6 +61,7 @@ class AgentApi
         if ($redis->hget('node:connect', (string) $node['id'])) {
             throw new NormalStatusException(t(key: 'adm.socket_already_connected') . $node['id'], AdmCode::SOCKET_ALREADY_CONNECTED);
         }
+        $this->nodeService->updateAgent($node, $data);
         return $this->response->success('Success', [
             'token' => $this->authService->getSocketToken('agent'),
         ]);
