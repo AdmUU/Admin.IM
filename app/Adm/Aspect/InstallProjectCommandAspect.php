@@ -111,14 +111,14 @@ class InstallProjectCommandAspect extends AbstractAspect
         if (
             env('WELCOME_FILE')
             && file_exists(
-                $projectBasePath .
-                DIRECTORY_SEPARATOR .
-                env('WELCOME_FILE')
+                $projectBasePath
+                . DIRECTORY_SEPARATOR
+                . env('WELCOME_FILE')
             )
         ) {
-            $welcome = file_get_contents($projectBasePath .
-                DIRECTORY_SEPARATOR .
-                env('WELCOME_FILE'));
+            $welcome = file_get_contents($projectBasePath
+                . DIRECTORY_SEPARATOR
+                . env('WELCOME_FILE'));
         }
         $welcome = str_replace([
             '%y',

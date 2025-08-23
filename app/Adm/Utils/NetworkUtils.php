@@ -174,8 +174,8 @@ class NetworkUtils extends AbstractService
      */
     public static function getIPRange(string $ip, string $type = 'segment', ?int $prefix = null): array|bool|string
     {
-        $version = filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) ? 4 :
-            (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6) ? 6 : false);
+        $version = filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) ? 4
+            : (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6) ? 6 : false);
 
         if ($version === false) {
             return false;
