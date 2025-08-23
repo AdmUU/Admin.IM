@@ -3,7 +3,7 @@ on:
   push:
   pull_request:
   schedule:
-    - cron: '0 2 * * *'
+    - cron: '0 2 * * 1'
 jobs:
   cs-fix:
     name: PHP CS Fix on PHP${{ matrix.php }} ${{ matrix.swoole }}
@@ -69,10 +69,13 @@ jobs:
           if ! [[ "18.04 20.04 22.04 23.04" == *"$(lsb_release -rs)"* ]];
           then
           echo "Ubuntu $(lsb_release -rs) is not currently supported.";
-          exit;
+          exit 1;
           fi
-          curl https://packages.microsoft.com/keys/microsoft.asc | sudo tee /etc/apt/trusted.gpg.d/microsoft.asc
-          curl https://packages.microsoft.com/config/ubuntu/$(lsb_release -rs)/prod.list | sudo tee /etc/apt/sources.list.d/mssql-release.list
+          sudo rm -f /etc/apt/sources.list.d/mssql-release.list
+          sudo rm -f /etc/apt/trusted.gpg.d/microsoft.asc
+          sudo rm -f /usr/share/keyrings/microsoft-prod.gpg
+          curl -sSL https://packages.microsoft.com/keys/microsoft.asc | sudo gpg --dearmor -o /usr/share/keyrings/microsoft-prod.gpg
+          echo "deb [arch=amd64,arm64,armhf signed-by=/usr/share/keyrings/microsoft-prod.gpg] https://packages.microsoft.com/ubuntu/$(lsb_release -rs)/prod $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/mssql-release.list
           sudo apt-get update
           sudo ACCEPT_EULA=Y apt-get install -y msodbcsql18
           sudo ACCEPT_EULA=Y apt-get install -y mssql-tools18
