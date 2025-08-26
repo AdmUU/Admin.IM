@@ -75,7 +75,10 @@ class IndexController
         } else {
             $prefer_ip_type = $validateHost['address_type'];
         }
-        // $validateHost['address'] = $validateHost['address_type'] == 'ipv4' ? $validateHost['address'] : '[' . $validateHost['address'] . ']';
+        $validateHost['address'] = $validateHost['address_type'] == 'ipv4' ? $validateHost['address'] : '[' . $validateHost['address'] . ']';
+        if (strpos($data['content'], 'http://') !== 0 && strpos($data['content'], 'https://') !== 0) {
+            $data['content'] = $validateHost['address_type'] == 'ipv6' && strpos($data['content'], '[') !== 0 ? 'http://[' . $data['content'] . ']' : 'http://' . $data['content'];
+        }
         $locale = $data['locale'] == 'en' || $data['locale'] == 'en-US' ? 'en' : 'zh-CN';
         $configAddr = sys_config('site_url');
         $token = $this->authService->getSocketToken('web');
