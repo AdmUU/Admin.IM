@@ -16,6 +16,7 @@ use App\Adm\Interfaces\AdmIpLocationInterface;
 use App\Adm\Service\AdmAuthService;
 use App\Adm\Service\AdmRequestStatisticsService;
 use Hyperf\Context\Context as CoContext;
+use Hyperf\Coroutine\Coroutine;
 use Hyperf\Di\Annotation\Inject;
 use Hyperf\SocketIOServer\Socket;
 use Hyperf\SocketIOServer\SocketIO;
@@ -62,15 +63,22 @@ class WebspeedService extends AbstractService
         $snapNodeList = $redis->get($task['node_snapshot']);
         $nodeList = unserialize($snapNodeList);
         $io = container()->get(SocketIO::class);
-        $i = 0;
-        foreach ($nodeList as $nodeID) {
-            if ($i > 0 && $i % 5 === 0) {
-                sleep(3);
+        Coroutine::create(function () use ($nodeList, $redis, $io, $requestData) {
+            $chunks = array_chunk($nodeList, 5);
+            foreach ($chunks as $index => $chunk) {
+                if ($index > 0) {
+                    Coroutine::sleep(3);
+                }
+                foreach ($chunk as $nodeID) {
+                    Coroutine::create(function () use ($nodeID, $redis, $io, $requestData) {
+                        $nodeSid = $redis->hget('node:sid', (string) $nodeID);
+                        if ($nodeSid) {
+                            $io->of('/agent')->to($nodeSid)->emit('request-webspeed', $requestData);
+                        }
+                    });
+                }
             }
-            $nodeSid = $redis->hget('node:sid', (string) $nodeID);
-            $nodeSid && $io->of('/agent')->to($nodeSid)->emit('request-webspeed', $requestData);
-            ++$i;
-        }
+        });
         Context::set('task:node_snapshot', $task['node_snapshot']);
         $this->requestStatistics->add('webspeed');
     }
